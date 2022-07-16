@@ -30,6 +30,7 @@ if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OP
 run_pre_install() {
   cmd_exists plank &&
     dconf dump /net/launchpad/plank/docks/ >"$HOME/.config/plank/settings.ini"
+  [ -d "$APPDIR" ] && rm -Rf "$APPDIR"
   killall plank
   return ${?:-0}
 }
@@ -165,10 +166,9 @@ fi
 # run post install scripts
 run_postinst() {
   dfmgr_run_post
-  [ -d "$APPDIR" ] && rm -Rf "$APPDIR"/*
   [[ -d "$INSTDIR/share" ]] && mkdir -p "$SHARE/plank" &&
     cp -Rf "$INSTDIR/share" "$SHARE/plank"
-  cmd_exists plank &&
+  [[ -f $INSTDIR/etc/settings.ini ]] && cmd_exists plank &&
     cat "$INSTDIR/etc/settings.ini" | dconf load /net/launchpad/plank/docks/ &&
     plank &>/dev/null &
   disown
