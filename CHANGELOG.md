@@ -1,3 +1,11 @@
+#### Changelog: 2022-08-28 at 16:49:26  
+
+install.sh : 🗃️ Fixed the installer script 🗃️ 🚀  
+  
+#### End of changes for  - 2022-08-28 at 16:49:26  
+  
+----  
+  
 #### Changelog: 2022-07-16 at 17:38:47  
   
 "share/themes/Glass      🚀  

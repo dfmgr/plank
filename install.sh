@@ -1,44 +1,41 @@
 #!/usr/bin/env bash
+# shellcheck shell=bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version           :  202207161617-git
+##@Version           :  202208281637-git
 # @@Author           :  Jason Hempstead
 # @@Contact          :  jason@casjaysdev.com
-# @@License          :  WTFPL
+# @@License          :  LICENSE.md
 # @@ReadME           :  install.sh --help
 # @@Copyright        :  Copyright: (c) 2022 Jason Hempstead, Casjays Developments
-# @@Created          :  Saturday, Jul 16, 2022 16:17 EDT
+# @@Created          :  Sunday, Aug 28, 2022 16:37 EDT
 # @@File             :  install.sh
 # @@Description      :
-# @@Changelog        :
+# @@Changelog        :  New script
 # @@TODO             :  Better documentation
 # @@Other            :
 # @@Resource         :
+# @@Terminal App     :  no
 # @@sudo/root        :  no
+# @@Template         :  installers/dfmgr
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 APPNAME="plank"
-VERSION="202207161617-git"
+VERSION="202208281637-git"
 HOME="${USER_HOME:-$HOME}"
 USER="${SUDO_USER:-$USER}"
 RUN_USER="${SUDO_USER:-$USER}"
-SRC_DIR="${BASH_SOURCE%/*}"
+SCRIPT_SRC_DIR="${BASH_SOURCE%/*}"
 SCRIPTS_PREFIX="dfmgr"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set bash options
-if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# specify any functions here
-run_pre_install() {
-  cmd_exists plank &&
-    dconf dump /net/launchpad/plank/docks/ >"$HOME/.config/plank/settings.ini"
-  [ -d "$APPDIR" ] && rm -Rf "$APPDIR"
-  killall plank
-  return ${?:-0}
-}
+#if [ ! -t 0 ] && { [ "$1" = --term ] || [ $# = 0 ]; }; then { [ "$1" = --term ] && shift 1 || true; } && TERMINAL_APP="TRUE" myterminal -e "$APPNAME $*" && exit || exit 1; fi
+[ "$1" = "--debug" ] && set -x && export SCRIPT_OPTS="--debug" && export _DEBUG="on"
+[ "$1" = "--raw" ] && export SHOW_RAW="true"
+set -o pipefail
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Import functions
 CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
 SCRIPTSFUNCTDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}/functions"
-SCRIPTSFUNCTFILE="${SCRIPTSAPPFUNCTFILE:-app-installer.bash}"
+SCRIPTSFUNCTFILE="${SCRIPTSAPPFUNCTFILE:-mgr-installers.bash}"
 SCRIPTSFUNCTURL="${SCRIPTSAPPFUNCTURL:-https://github.com/dfmgr/installer/raw/main/functions}"
 connect_test() { curl -q -ILSsf --retry 1 -m 1 "https://1.1.1.1" | grep -iq 'server:*.cloudflare' || return 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -54,11 +51,20 @@ else
   exit 90
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# trap the cleanup function
-trap_exit
+# Define pre-install scripts
+run_pre_install() {
+
+  return ${?:-0}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Define custom functions
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Call the main function
 dfmgr_install
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# trap the cleanup function
+trap_exit
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # OS Support: supported_os unsupported_oses
 unsupported_oses
@@ -92,10 +98,10 @@ show_optvars "$@"
 #sudoreq "$0 *" # sudo required
 #sudorun  # sudo optional
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# initialize the installer
+# Initialize the installer
 dfmgr_run_init
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# run pre install commands
+# Run pre-install commands
 execute "run_pre_install" "Running pre-installation commands"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end with a space
@@ -105,6 +111,7 @@ PYTH=""
 PIPS=""
 CPAN=""
 GEMS=""
+NPM=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # install packages - useful for package that have the same name on all oses
 install_packages "$APP"
@@ -126,6 +133,9 @@ install_cpan "$CPAN"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # check for ruby binaries and install using ruby package manager
 install_gem "$GEMS"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# check for npm binaries and install using node package manager
+install_npm "$NPM"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other dependencies
 dotfilesreq
@@ -166,15 +176,24 @@ fi
 # run post install scripts
 run_postinst() {
   dfmgr_run_post
-  [[ -d "$INSTDIR/share" ]] && mkdir -p "$SHARE/plank" &&
-    cp -Rf "$INSTDIR/share" "$SHARE/plank"
-  [[ -f $INSTDIR/etc/settings.ini ]] && cmd_exists plank &&
-    cat "$INSTDIR/etc/settings.ini" | dconf load /net/launchpad/plank/docks/ &&
+  [ -d "$INSTDIR/share" ] || mkdir -p "$SHARE/plank"
+  ps ux 2>&1 | grep -q '[p]lank' && PLANK_RUNNING="true"
+  [ "$PLANK_RUNNING" = "true" ] && killall plank &>/dev/null
+  [ -d "$INSTDIR/share" ] && cp -Rf "$INSTDIR/share" "$SHARE/plank"
+  if [ -f "$INSTDIR/etc/settings.ini" ]; then
+    cmd_exists plank && cat "$INSTDIR/etc/settings.ini" | dconf load "/net/launchpad/plank/docks/"
+  fi
+  if [ "$PLANK_RUNNING" = "true" ]; then
     plank &>/dev/null &
-  disown
+    disown
+  fi
 }
-#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# run post install scripts
 execute "run_postinst" "Running post install scripts"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Output post install message
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create version file
 dfmgr_install_version
@@ -183,11 +202,11 @@ dfmgr_install_version
 run_exit
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run any external scripts
-if ! cmd_exists "$APPNAME" && [[ -f "$INSTDIR/build.sh" ]]; then
+if ! cmd_exists "$APPNAME" && [ -f "$INSTDIR/build.sh" ]; then
   if builtin cd "$PLUGDIR/source"; then
-    BUILD_SRC_DIR="$PLUGDIR/source"
+    BUILD_SCRIPT_SRC_DIR="$PLUGDIR/source"
     BUILD_SRC_URL=""
-    export BUILD_SRC_DIR BUILD_SRC_URL
+    export BUILD_SCRIPT_SRC_DIR BUILD_SRC_URL
     eval "$INSTDIR/build.sh"
   fi
   cmd_exists $APPNAME || printf_red "$APPNAME is not installed: run $INSTDIR/build.sh"
