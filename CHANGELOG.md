@@ -1,3 +1,15 @@
+## 🗃️ Changelog: 2023-04-26 at 01:27:32 🗃️  
+
+🗃️ Committing everything that changed 🗃️  
+  
+  
+.gitignore  
+install.sh  
+
+
+### 🗃️ End of changes for 202304260127-git 🗃️  
+
+----  
 #### Changelog: 2022-08-28 at 16:49:26  
 
 install.sh : 🗃️ Fixed the installer script 🗃️ 🚀  
