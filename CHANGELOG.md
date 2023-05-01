@@ -1,3 +1,16 @@
+## 🗃️ Changelog: 2023-05-01 at 18:23:48 🗃️  
+
+🗃️ Committing everything that changed 🗃️  
+  
+  
+etc/settings.ini  
+install.sh  
+share/themes/Dracula/  
+
+
+### 🗃️ End of changes for 202305011823-git 🗃️  
+
+----  
 ## 🗃️ Changelog: 2023-04-29 at 22:52:38 🗃️  
 
 🗃️ Updated static server 🗃️  
