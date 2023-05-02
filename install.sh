@@ -176,7 +176,7 @@ PYTHON_PIP=""
 PHP_COMPOSER=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Run custom actions
-
+__app_is_running plank && PLANK_IS_RUNNING="true"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Show a custom message after install
 __run_post_message() {
@@ -201,10 +201,10 @@ __run_prepost_install() {
 __run_post_install() {
   local getRunStatus=0
   [ -d "$INSTDIR/share" ] || __mkdir "$SHARE/plank"
-  __app_is_running && PLANK_RUNNING="true" && __kill plank
+  __kill plank
   __cp_rf "$INSTDIR/share" "$SHARE/plank"
   [ -f "$INSTDIR/etc/settings.ini" ] && [ -n "$DISPLAY" ] && __cmd_exists plank && cat "$INSTDIR/etc/settings.ini" | dconf load "/net/launchpad/plank/docks/"
-  [ "$PLANK_RUNNING" = "true" ] && __silent_start plank
+  [ "$PLANK_IS_RUNNING" = "true" ] && __silent_start plank
   return $getRunStatus
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
