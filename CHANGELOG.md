@@ -1,3 +1,15 @@
+## 🗃️ Changelog: 2023-08-10 at 20:08:21 🗃️  
+
+🗃️ Updated domain names 🗃️  
+  
+  
+install.sh  
+LICENSE.md  
+
+
+### 🗃️ End of changes for 202308102008-git 🗃️  
+
+----  
 ## 🗃️ Changelog: 2023-05-03 at 09:40:22 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
